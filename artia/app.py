@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from artia.NST_model import img_to_tensor, tensor_to_image
 import tensorflow_hub as hub
+import tensorflow as tf
 
 '''
 # Neural Style Transfer front
@@ -12,7 +13,7 @@ import tensorflow_hub as hub
 col1, col2 = st.columns(2)
 
 content_uploaded_file = col1.file_uploader("Choose an content image:",
-                                           type=["png", "jpeg"])
+                                           type=["png", "jpeg",'jpg'])
 
 if content_uploaded_file is not None:
     content_img = Image.open(content_uploaded_file)
@@ -28,7 +29,7 @@ if content_uploaded_file is not None:
     content_img = np.array(img)[:, :, 0:3].astype(float) / 255
 
 style_uploaded_file = col2.file_uploader("Choose an style image:",
-                                         type=["png", "jpeg"])
+                                         type=["png", "jpeg",'jpg'])
 
 if style_uploaded_file is not None:
     style_img = Image.open(style_uploaded_file)
@@ -50,5 +51,13 @@ if style_uploaded_file is not None:
 
         hub_model = hub.load(
             'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2')
-        stylized_image = hub_model(tf.constant(content_img),
-                                   tf.constant(style_img))[0]
+        stylized_image = hub_model(tf.constant(img_to_tensor(content_img)),
+                                   tf.constant(img_to_tensor(style_img)))[0]
+
+        tensor = stylized_image * 255
+        tensor = np.array(tensor, dtype=np.uint8)
+        if np.ndim(tensor) > 3:
+            assert tensor.shape[0] == 1
+            tensor = tensor[0]
+
+        st.image(Image.fromarray(tensor))
