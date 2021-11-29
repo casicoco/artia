@@ -59,5 +59,58 @@ pypi:
 #         LOCAL SET UP
 # ----------------------------------
 
-install_requirements:
-	@pip install -r requirements.txt
+# ----------------------------------
+#      GCP
+# ----------------------------------
+GCE_INSTANCE_NAME="instance-data"
+GCP_PROJECT_ID="airtia"
+GCE_ZONE="europe-west1-b"
+
+set_project:
+	gcloud config set project ${GCP_PROJECT_ID}
+
+create_compute:
+	gcloud compute instances create ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCE_ZONE} --machine-type=e2-medium
+
+create_bucket:
+	@gsutil mb -l ${REGION} -p ${PROJECT_ID} gs://${BUCKET_NAME}
+
+upload_data:
+	@gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
+	LOCAL_PATH = '/Users/lauredegrave/code/casicoco/TaxiFareModel/TaxiFareModel/data/test.csv' # path to the file to upload to GCP (the path to the file should be absolute or should match the directory where the make command is ran)
+	BUCKET_FOLDER = data # bucket directory in which to store the uploaded file (`data` is an arbitrary name that we choose to use)
+	BUCKET_FILE_NAME = $(shell basename ${LOCAL_PATH}) # name for the uploaded file inside of the bucket (we choose not to rename the file that we upload)
+
+gcp_submit_training:
+	gcloud ai-platform jobs submit training ${JOB_NAME} \ #taxi_train_pipeline_$(shell date +'%Y%m%d_%H%M%S')
+		--job-dir gs://${BUCKET_NAME}/${BUCKET_TRAINING_FOLDER} \ #'trainings'
+		--package-path ${PACKAGE_NAME} \ #TaxiFareModel
+		--module-name ${PACKAGE_NAME}.${FILENAME} \ #trainer
+		--python-version=${PYTHON_VERSION} \ #3.7
+		--runtime-version=${RUNTIME_VERSION} \ #2.6
+		--region ${REGION} \ #europe-west1
+		--stream-logs \
+    --scale-tier CUSTOM \
+    --master-machine-type n1-standard-16
+
+start_compute:
+	gcloud compute instances start ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCE_ZONE}
+
+stop_compute:
+	gcloud compute instances stop ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCE_ZONE}
+
+connect_ssh:
+	gcloud beta compute ssh ${GCE_INSTANCE_NAME} --project ${GCP_PROJECT_ID} --zone ${GCE_ZONE}
+
+
+# ----------------------------------
+#      API
+# ----------------------------------
+run_api:
+	uvicorn artia.artia-run.app:app --reload
+
+# ----------------------------------
+#      DOCKER
+# ----------------------------------
+docker_init:
+	export DOCKER_IMAGE_NAME="name-of-my-image-in-kebab-case"
