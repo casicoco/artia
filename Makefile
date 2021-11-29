@@ -114,3 +114,17 @@ run_api:
 # ----------------------------------
 docker_init:
 	export DOCKER_IMAGE_NAME="name-of-my-image-in-kebab-case"
+
+
+
+
+
+
+
+
+
+# ----------------------------------
+#      Streamlit
+# ----------------------------------
+run_streamlit:
+	streamlit run artia/front.py
