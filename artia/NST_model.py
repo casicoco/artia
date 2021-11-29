@@ -12,8 +12,8 @@ def load_img(content='content_charles.png', style='style_vangogh.jpeg'):
     return {'content': content_data_path, 'style': style_data_path}
 
 
-def img_to_tensor(path_to_img, max_dim=672):  #load data into tensor object
-    img = tf.image.convert_image_dtype(path_to_img, tf.float32)
+def img_to_tensor(path_to_img, max_dim=672):
+    img = tf.convert_to_tensor(path_to_img, dtype=tf.float32)
     shape = tf.cast(tf.shape(img)[:-1], tf.float32)
     long_dim = max(shape)
     scale = max_dim / long_dim  #compute scale for tensor object
@@ -116,9 +116,6 @@ def denoising_loss(image, denoising_weight=1):
     return denoising_weight * 0.5 * (x_var + y_var)
 
 
-model = vgg_layers()
-
-
 @tf.function()
 def train_step(image, style_targets, content_targets, style_layers,
                content_layers, optimizer, model):
@@ -142,6 +139,8 @@ def train_step(image, style_targets, content_targets, style_layers,
 def training(image,
              style_targets,
              content_targets,
+             style_layers,
+             content_layers,
              optimizer,
              model,
              epochs=30,
@@ -150,7 +149,8 @@ def training(image,
     for n in range(epochs):
         for m in range(steps_per_epoch):
             step += 1
-            train_step(image, style_targets, content_targets, optimizer, model)
+            train_step(image, style_targets, content_targets, style_layers,
+                       content_layers, optimizer, model)
     return image
 
 
@@ -178,7 +178,8 @@ def tensor_to_image(content_img, style_img):
     image = tf.Variable(content_tensor)
     opt = tf.optimizers.Adam(learning_rate=2.5e-2, beta_1=99e-2, epsilon=1e-1)
     model = vgg_layers()
-    image = training(image, style_targets, content_targets, opt, model, 1, 1)
+    image = training(image, style_targets, content_targets, style_layers,
+                     content_layers, opt, model, 1, 10)
 
     tensor = image * 255
     tensor = np.array(tensor, dtype=np.uint8)
@@ -187,6 +188,3 @@ def tensor_to_image(content_img, style_img):
         tensor = tensor[0]
 
     return PIL.Image.fromarray(tensor)
-
-def function_dumb():
-    return None
