@@ -3,6 +3,8 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 from artia.NST_model import img_to_tensor, tensor_to_image
+import tensorflow_hub as hub
+
 '''
 # Neural Style Transfer front
 '''
@@ -41,4 +43,12 @@ if style_uploaded_file is not None:
     img.resize((299, 299), Image.ANTIALIAS)
     style_img = np.array(img)[:, :, 0:3].astype(float) / 255.
 
-    st.image(tensor_to_image(content_img, style_img))
+    model='tensor'
+    if model=='local':
+        st.image(tensor_to_image(content_img, style_img))
+    else:
+
+        hub_model = hub.load(
+            'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2')
+        stylized_image = hub_model(tf.constant(content_img),
+                                   tf.constant(style_img))[0]
