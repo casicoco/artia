@@ -107,20 +107,13 @@ connect_ssh:
 #      API
 # ----------------------------------
 run_api:
-	uvicorn artia.artia-run.app:app --reload
+	uvicorn artia.app:app --reload
 
 # ----------------------------------
 #      DOCKER
 # ----------------------------------
 docker_init:
 	export DOCKER_IMAGE_NAME="name-of-my-image-in-kebab-case"
-
-
-
-
-
-
-
 
 
 # ----------------------------------

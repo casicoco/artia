@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from artia.NST_model import img_to_tensor, tensor_to_image
 import tensorflow_hub as hub
+import tensorflow as tf
 
 '''
 # Neural Style Transfer front
