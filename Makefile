@@ -120,4 +120,4 @@ docker_init:
 #      Streamlit
 # ----------------------------------
 run_streamlit:
-	streamlit run artia/app.py
+	-@streamlit run app.py
