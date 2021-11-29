@@ -127,4 +127,4 @@ docker_init:
 #      Streamlit
 # ----------------------------------
 run_streamlit:
-	streamlit run artia/front.py
+	streamlit run artia/app.py
