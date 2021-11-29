@@ -107,7 +107,7 @@ connect_ssh:
 #      API
 # ----------------------------------
 run_api:
-	uvicorn artia.app:app --reload
+	uvicorn artia.api:app --reload
 
 # ----------------------------------
 #      DOCKER

@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from NST_model import tensor_to_image
+from artia.NST_model import tensor_to_image
+
+
 
 app = FastAPI()
 app.add_middleware(
@@ -17,19 +20,37 @@ def index():
 
 
 
-@app.post("/create")
-async def create(content, style):
+@app.post("/create/")
+async def create_upload_file(content: UploadFile = File(...),style: UploadFile = File(...)):
+    """
+    Takes in the 2 pictures (content and style) and saves them locally for now
+    """
+    content.filename = "content"
+    content_img = await content.read()  # <-- Important!
 
-    print("\nreceived file:")
-    print(type(content))
-    #print(content_img)
+    # example of how you can save the file
+    with open(f"{content.filename}", "wb") as f:
+        f.write(content_img)
 
-    #image_path = "image_api.png"
+    style.filename = "style"
+    style_img = await style.read()  # <-- Important!
 
-    # write file to disk
-    #with open(image_path, "wb") as f:
-    #    f.write(file)
+    # example of how you can save the file
+    with open(f"{style.filename}", "wb") as f:
+        f.write(style_img)
 
-    # model -> pred
 
-    return dict(pred=True)
+    return {"content": content.filename,"style":style.filename}
+
+"""
+@app.get("/images/")
+async def read_random_file():
+
+    # get a random file from the image directory
+    files = os.listdir(IMAGEDIR)
+    random_index = randint(0, len(files) - 1)
+
+    path = f"{IMAGEDIR}{files[random_index]}"
+    
+    # notice you can use FileResponse now because it expects a path
+    return FileResponse(path)"""

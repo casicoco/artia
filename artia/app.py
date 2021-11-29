@@ -85,7 +85,10 @@ if style_uploaded_file is not None:
     url = "http://127.0.0.1:8000/create"
     files = {"content": img_byte_arr, "style": img_byte_arr2}
 
-    response = requests.post(url, files=files)
+    with requests.Session() as s:
+        response = s.post(url,files=files)
+    
+    #response = requests.post(url, files=files)
 
     if response.status_code == 200:
         resp = response.json()
