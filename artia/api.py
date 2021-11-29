@@ -16,6 +16,20 @@ def index():
     return {"greeting": "Hello world"}
 
 
-@app.get("/create")
-def create(content_img, style_img):
-    return tensor_to_image(content_img, style_img)
+
+@app.post("/create")
+async def create(content, style):
+
+    print("\nreceived file:")
+    print(type(content))
+    #print(content_img)
+
+    #image_path = "image_api.png"
+
+    # write file to disk
+    #with open(image_path, "wb") as f:
+    #    f.write(file)
+
+    # model -> pred
+
+    return dict(pred=True)
