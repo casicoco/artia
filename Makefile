@@ -62,9 +62,9 @@ pypi:
 # ----------------------------------
 #      GCP
 # ----------------------------------
-GCE_INSTANCE_NAME="instance-data"
-GCP_PROJECT_ID="airtia"
-GCE_ZONE="europe-west1-b"
+GCE_INSTANCE_NAME=instance-data
+GCP_PROJECT_ID=airtia
+GCE_ZONE=europe-west1-b
 
 set_project:
 	gcloud config set project ${GCP_PROJECT_ID}
@@ -121,9 +121,28 @@ dk_list:
 dk_build_api:
 	docker build -t api .
 dk_run_port:
-	docker run -p 8080:8000 api
+	docker run -e PORT=8000 -p 8080:8000 api
 # ----------------------------------
 #      Streamlit
 # ----------------------------------
 run_streamlit:
 	-@streamlit run artia/app.py
+
+GCP_REGION=europe-west1
+DOCKER_IMAGE=artia-api
+
+#Buil image on GCP 
+build_to_gcp:
+	docker build -t ${GCP_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE} .
+#Run image on GCP (PORT=8000 require for Cloud run)
+run_to_gcp:
+	docker run -e PORT=8000 -p 8080:8000 ${GCP_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE}
+#if everything ok on http://localhost:8080/ push to cloud
+
+#🚨 Attention Apple Silicon users: you will not be able to run on Cloud Run any containers based on the Docker images built by your machine
+#Push and store Docker images in the cloud in Google Container Registry (similar github) request by Cloud Run or Kubernetes Engine
+push_to_gcloudrun: 
+	docker push ${GCP_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE}
+#Deploy our image to Cloud Run
+deploy_to_gcloudrun:
+	gcloud run deploy --image ${GCP_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE} --platform managed --region ${GCP_REGION}
