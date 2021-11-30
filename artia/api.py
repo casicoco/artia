@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from artia.NST_model import tensor_to_image
+from artia.NST_model import higher_resolution,synthetize_img
 import tensorflow_hub as hub
 import tensorflow as tf
 from PIL import Image
@@ -51,11 +51,12 @@ async def create_upload_file(content: UploadFile = File(...),style: UploadFile =
     # with open(f"{style.filename}", "wb") as f:
     #     f.write(style_img)
 
-    tensor_result=tensor_to_image(content_img, style_img)
+    tensor_result=synthetize_img(content_img, style_img)
+    tensor_result=higher_resolution(tensor_result)
     shape=tensor_result.shape
     np_result=tensor_result.reshape([-1])
     np_result=np_result.tolist()
-    # print(len(np_result))
-    # print(type(np_result))
+    #print(len(np_result))
+
 
     return {"result": np_result, "shape":shape}

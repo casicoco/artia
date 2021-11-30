@@ -3,6 +3,7 @@ import tensorflow as tf
 import PIL.Image
 import numpy as np
 from PIL import Image
+import tensorflow_hub as hub
 
 
 def load_img(content='content_charles.png', style='style_vangogh.jpeg'):
@@ -13,7 +14,7 @@ def load_img(content='content_charles.png', style='style_vangogh.jpeg'):
     return {'content': content_data_path, 'style': style_data_path}
 
 
-def img_to_tensor(path_to_img, max_dim=672):
+def img_to_tensor(path_to_img, max_dim=224):
     img = tf.convert_to_tensor(path_to_img, dtype=tf.float32)
     shape = tf.cast(tf.shape(img)[:-1], tf.float32)
     long_dim = max(shape)
@@ -88,8 +89,8 @@ def style_loss(style_output, image_output):
 def compute_loss(style_output,
                  content_output,
                  image_output,
-                 style_weight=1e-2,
-                 content_weight=1e4):
+                 style_weight,
+                 content_weight):
 
     content_l = tf.reduce_sum([
         content_loss(content_output[key], image_output[key]) /
@@ -128,9 +129,9 @@ def train_step(image, style_targets, content_targets, style_layers,
         loss = compute_loss(style_targets,
                             content_targets,
                             image_output,
-                            style_weight=1.8e-2,
-                            content_weight=2e4)['total_loss']
-        loss += denoising_loss(image_processed, 12)
+                            style_weight=1e2,
+                            content_weight=7.5e0)['total_loss']
+        loss += denoising_loss(image_processed, 2e2)
 
     grad = tape.gradient(loss, image)
     optimizer.apply_gradients([(grad, image)])
@@ -154,8 +155,15 @@ def training(image,
                        content_layers, optimizer, model)
     return image
 
+def tensor_to_image(image):
+    tensor = image * 255
+    tensor = np.array(tensor, dtype=np.uint8)
+    if np.ndim(tensor) > 3:
+        assert tensor.shape[0] == 1
+        tensor = tensor[0]
+    return tensor
 
-def tensor_to_image(content_img, style_img):
+def synthetize_img(content_img, style_img):
 
     content_img = np.array(content_img)[:, :, 0:3].astype(float) / 255.
     style_img = np.array(style_img)[:, :, 0:3].astype(float) / 255.
@@ -168,8 +176,8 @@ def tensor_to_image(content_img, style_img):
     ]
 
     #defining tensor/processed
-    style_tensor = img_to_tensor(style_img)
-    content_tensor = img_to_tensor(content_img)
+    style_tensor = img_to_tensor(style_img*255)
+    content_tensor = img_to_tensor(content_img * 255)
 
     content_processed = VGG_preprocessing(content_tensor)
     style_processed = VGG_preprocessing(style_tensor)
@@ -181,15 +189,14 @@ def tensor_to_image(content_img, style_img):
 
     #running the model
     image = tf.Variable(content_tensor)
-    opt = tf.optimizers.Adam(learning_rate=2.5e-2, beta_1=99e-2, epsilon=1e-1)
+    opt = tf.optimizers.Adam(learning_rate=9.5e-3, beta_1=99e-2, epsilon=1e-1)
     model = vgg_layers()
     image = training(image, style_targets, content_targets, style_layers,
-                     content_layers, opt, model, 1, 10)
+                     content_layers, opt, model, 1, 1)
 
-    tensor = image * 255
-    tensor = np.array(tensor, dtype=np.uint8)
-    if np.ndim(tensor) > 3:
-        assert tensor.shape[0] == 1
-        tensor = tensor[0]
+    return image
 
-    return tensor
+def higher_resolution(image):
+    model = hub.load("https://tfhub.dev/captain-pool/esrgan-tf2/1")
+    fake_image = model(image* 255)
+    return tensor_to_image(tf.clip_by_value(fake_image / 255, 0.0, 1.0))
