@@ -23,7 +23,6 @@ if content_uploaded_file is not None:
                         channels="RGB",
                         output_format='PNG',
                         use_column_width=True)
-    content_img=content_img.resize((299, 299), Image.ANTIALIAS)
 
     # convert image to bytes
     img_byte_arr = io.BytesIO()
@@ -45,7 +44,6 @@ if style_uploaded_file is not None:
                         channels="RGB",
                         output_format='PNG',
                         use_column_width=True)
-    style_img=style_img.resize((299, 299), Image.ANTIALIAS)
 
     # convert image to bytes
     img_byte_arr2 = io.BytesIO()
@@ -66,7 +64,7 @@ if style_uploaded_file is not None:
     if response.status_code == 200:
         resp = response.json()
         result=np.array(resp["result"]).reshape(resp["shape"])
-        st.image(Image.fromarray((result * 255).astype(np.uint8)))
+        st.image(Image.fromarray((result).astype(np.uint8)))
 
     else:
         resp = response.json()
