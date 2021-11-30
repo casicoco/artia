@@ -113,9 +113,15 @@ run_api:
 #      DOCKER
 # ----------------------------------
 docker_init:
-	export DOCKER_IMAGE_NAME="name-of-my-image-in-kebab-case"
-
-
+	export DOCKER_IMAGE_NAME="image-artia-1"
+dk_build:
+	docker build .
+dk_list:
+	docker images
+dk_build_api:
+	docker build -t api .
+dk_run_port:
+	docker run -p 8080:8000 api
 # ----------------------------------
 #      Streamlit
 # ----------------------------------
