@@ -34,3 +34,4 @@ termcolor
 matplotlib
 pillow
 streamlit
+python-multipart
