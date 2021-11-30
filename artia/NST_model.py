@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import PIL.Image
 import numpy as np
+from PIL import Image
 
 
 def load_img(content='content_charles.png', style='style_vangogh.jpeg'):
@@ -155,6 +156,10 @@ def training(image,
 
 
 def tensor_to_image(content_img, style_img):
+
+    content_img = np.array(content_img)[:, :, 0:3].astype(float) / 255.
+    style_img = np.array(style_img)[:, :, 0:3].astype(float) / 255.
+
     content_layers = ['block5_conv2']  #defining main layers
 
     style_layers = [
@@ -187,4 +192,4 @@ def tensor_to_image(content_img, style_img):
         assert tensor.shape[0] == 1
         tensor = tensor[0]
 
-    return PIL.Image.fromarray(tensor)
+    return tensor

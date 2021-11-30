@@ -2,6 +2,10 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from artia.NST_model import tensor_to_image
+import tensorflow_hub as hub
+import tensorflow as tf
+from PIL import Image
+import io
 
 
 
@@ -28,29 +32,30 @@ async def create_upload_file(content: UploadFile = File(...),style: UploadFile =
     content.filename = "content"
     content_img = await content.read()  # <-- Important!
 
-    # example of how you can save the file
-    with open(f"{content.filename}", "wb") as f:
-        f.write(content_img)
+    content_img=tf.io.decode_image(content_img,
+                           channels=3,
+                           dtype=tf.dtypes.float32,
+                           name=None,
+                           expand_animations=True)
 
     style.filename = "style"
     style_img = await style.read()  # <-- Important!
 
+    style_img = tf.io.decode_image(style_img,
+                                   channels=3,
+                                   dtype=tf.dtypes.float32,
+                                   name=None,
+                                   expand_animations=True)
+
     # example of how you can save the file
-    with open(f"{style.filename}", "wb") as f:
-        f.write(style_img)
+    # with open(f"{style.filename}", "wb") as f:
+    #     f.write(style_img)
 
+    tensor_result=tensor_to_image(content_img, style_img)
+    shape=tensor_result.shape
+    np_result=tensor_result.reshape([-1])
+    np_result=np_result.tolist()
+    # print(len(np_result))
+    # print(type(np_result))
 
-    return {"content": content.filename,"style":style.filename}
-
-"""
-@app.get("/images/")
-async def read_random_file():
-
-    # get a random file from the image directory
-    files = os.listdir(IMAGEDIR)
-    random_index = randint(0, len(files) - 1)
-
-    path = f"{IMAGEDIR}{files[random_index]}"
-    
-    # notice you can use FileResponse now because it expects a path
-    return FileResponse(path)"""
+    return {"result": np_result, "shape":shape}
