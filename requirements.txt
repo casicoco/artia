@@ -6,8 +6,6 @@ wheel>=0.29
 
 # data science
 numpy
-pandas
-scikit-learn
 tensorflow
 tensorflow_hub
 
@@ -21,7 +19,6 @@ yapf
 # API
 gcsfs
 google-cloud-storage
-mlflow
 s3fs
 uvicorn
 fastapi

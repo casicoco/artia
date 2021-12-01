@@ -192,7 +192,7 @@ def synthetize_img(content_img, style_img):
     opt = tf.optimizers.Adam(learning_rate=9.5e-3, beta_1=99e-2, epsilon=1e-1)
     model = vgg_layers()
     image = training(image, style_targets, content_targets, style_layers,
-                     content_layers, opt, model, 1, 1)
+                     content_layers, opt, model, 20, 40)
 
     return image
 
