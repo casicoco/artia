@@ -55,7 +55,7 @@ if style_uploaded_file is not None:
 
 
     # api call
-    url = "https://artia-docker-gcloud-vtlrupnhta-ew.a.run.app/create/"
+    url = "http://localhost:8000/create"
     files = {"content": img_byte_arr, "style": img_byte_arr2}
 
     with requests.Session() as s:
