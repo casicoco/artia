@@ -118,7 +118,7 @@ def denoising_loss(image, denoising_weight=1):
     return denoising_weight * 0.5 * (x_var + y_var)
 
 
-@tf.function()
+
 def train_step(image, style_targets, content_targets, style_layers,
                content_layers, optimizer, model):
     with tf.GradientTape() as tape:
