@@ -5,16 +5,22 @@ import numpy as np
 from PIL import Image
 import tensorflow_hub as hub
 
+'''
+This is the Neural Style Transfer model functions used to transfer a style into a picture.
+'''
 
+'''
 def load_img(content='content_charles.png', style='style_vangogh.jpeg'):
     #data_path to raw_data to extract content & style images
+
     content_data_path = '/content/drive/My Drive/Artia on essecdrive/charles_style_transfer/dataset_style_transfer/content_charles.png'
     style_data_path = '/content/drive/My Drive/Artia on essecdrive/charles_style_transfer/dataset_style_transfer/style_vangogh.jpeg'
 
     return {'content': content_data_path, 'style': style_data_path}
-
+'''
 
 def img_to_tensor(path_to_img, max_dim=224):
+    # Converting image into a tensor and rescaling it to a maximum scale
     img = tf.convert_to_tensor(path_to_img, dtype=tf.float32)
     shape = tf.cast(tf.shape(img)[:-1], tf.float32)
     long_dim = max(shape)
@@ -58,6 +64,7 @@ def output_extraction(model, image_processed, image_layers=None):
 
 
 def content_loss(content_output, image_output):
+    # Computing the mean square loss between the outputs of the content and the synthetized images
     return tf.reduce_mean(tf.square(tf.add(content_output, -image_output)))
 
 
@@ -78,6 +85,7 @@ def gram_matrix(image_output):
 
 
 def style_loss(style_output, image_output):
+    # Computing the mean square loss between the outputs of the content and the synthetized images
     gram_style = gram_matrix(style_output)
     gram_image = gram_matrix(image_output)
     N = style_output.shape[-1]**2  #squared number of layers
@@ -91,7 +99,7 @@ def compute_loss(style_output,
                  image_output,
                  style_weight,
                  content_weight):
-
+    # Computing the global weighted loss
     content_l = tf.reduce_sum([
         content_loss(content_output[key], image_output[key]) /
         len(content_output.keys()) for key in content_output.keys()
