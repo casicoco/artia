@@ -1,74 +1,34 @@
-# Data analysis
-- Document here the project: artia
-- Description: Project Description
-- Data Source:
-- Type of analysis:
+# Art'IA
+Exploring art generation.
 
-Please document the project the better you can.
+Data Source: mathildemagne.fr
 
-# Startup the project
+Models explored:
+1. Style Transfer (using VGG19)
+2. AutoEncoder / Variational AutoEncoder
 
-The initial setup.
 
-Create virtualenv and install the project:
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv ~/venv ; source ~/venv/bin/activate ;\
-    pip install pip -U; pip install -r requirements.txt
-```
+### Install the project
 
-Unittest test:
-```bash
-make clean install test
-```
-
-Check for artia in gitlab.com/{group}.
-If your project is not set please add it:
-
-- Create a new project on `gitlab.com/{group}/artia`
-- Then populate it:
+To install the project:
 
 ```bash
-##   e.g. if group is "{group}" and project_name is "artia"
-git remote add origin git@github.com:{group}/artia.git
-git push -u origin master
-git push -u origin --tags
-```
-
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-artia-run
-```
-
-# Install
-
-Go to `https://github.com/{group}/artia` to see the project, manage issues,
-setup you ssh public key, ...
-
-Create a python3 virtualenv and activate it:
-
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv -ppython3 ~/venv ; source ~/venv/bin/activate
-```
-
-Clone the project and install it:
-
-```bash
-git clone git@github.com:{group}/artia.git
+git clone git@github.com:casicoco/artia.git
 cd artia
 pip install -r requirements.txt
-make clean install test                # install and test
+make clean install test 
 ```
-Functionnal test with a script:
+
+## Testing style transfer 
+
+Backend api is available in api.py
+Frontend streamlit is available in app.py
+
+You can run using:
 
 ```bash
-cd
-mkdir tmp
-cd tmp
-artia-run
+make run_api
+make run_streamlit
 ```
+
+## AutoEncoder / Variational AutoEncoder
